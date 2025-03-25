@@ -5,6 +5,7 @@
 #include <string>
 #include <chrono>
 #include <stdexcept>
+#include <windows.h>
 
 
 namespace
@@ -36,7 +37,7 @@ void load_data(MultiHashTable<std::string, std::string> &table)
 
         std::string word = line.substr(0, separator_pos);
         std::string explanation = line.substr(separator_pos + 2);
-        table.insert(std::make_pair(std::move(word), std::move(explanation)));
+        table.insert(std::move(std::make_pair(std::move(word), std::move(explanation))));
     }
 }
 
@@ -62,8 +63,8 @@ std::vector<std::string> load_test()
 
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
     try {
-        system("chcp 65001>nul");
         MultiHashTable<std::string, std::string> table(INITIAL_LAYERS, MAX_CAPACITY, LOAD_FACTOR);
         load_data(table);
     

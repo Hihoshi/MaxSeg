@@ -222,6 +222,7 @@ public:
     // 打印负载状态信息
     void info() const
     {
+        std::cout << "MultiHashTable info:\n";
         std::cout << std::fixed << std::setprecision(2);
         for (size_t i = 0; i < tables_.size(); ++i)
         {
