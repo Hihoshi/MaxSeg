@@ -63,7 +63,7 @@ std::vector<std::string> load_test()
 
 int main() {
     try {
-        system("chcp 65001>nul")
+        system("chcp 65001>nul");
         MultiHashTable<std::string, std::string> table(INITIAL_LAYERS, MAX_CAPACITY, LOAD_FACTOR);
         load_data(table);
     

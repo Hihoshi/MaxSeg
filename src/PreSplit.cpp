@@ -66,7 +66,8 @@ constexpr int MAX_CONSECUTIVE_MISSES = 4; // 最大允许连续未命中次数
 MatchInfo find_max_match(
     const MultiHashTable<std::string, std::string> &table,
     const std::wstring &sentence,
-    size_t start_pos)
+    size_t start_pos
+)
 {
     MatchInfo result;
     int consecutive_misses = 0;

@@ -11,7 +11,7 @@
                 "Bypass",
                 "-Command",
                 "$files = Get-ChildItem -Path '${workspaceFolder}\\src\\*.cpp' | % { $_.FullName };",
-                "g++ -std=c++17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -I '${workspaceFolder}\\include' -L '${workspaceFolder}\\lib' $files -o '${workspaceFolder}\\build\\main.exe' -Wall"
+                "g++ -std=c++17 -g -finput-charset=UTF-8 -fexec-charset=UTF-8 -I '${workspaceFolder}\\include' -L '${workspaceFolder}\\lib' $files -o '${workspaceFolder}\\build\\main.exe' -Wall"
             ],
             "group": "build",
             "problemMatcher": [
