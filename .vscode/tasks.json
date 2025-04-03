@@ -10,8 +10,19 @@
                 "-ExecutionPolicy",
                 "Bypass",
                 "-Command",
+                // 获取所有.cpp文件路径
                 "$files = Get-ChildItem -Path '${workspaceFolder}\\src\\*.cpp' | % { $_.FullName };",
-                "clang++ -stdlib=libc++ -std=c++17 -g -finput-charset=UTF-8 -fexec-charset=UTF-8 -I '${workspaceFolder}\\include' -L '${workspaceFolder}\\lib' $files -o '${workspaceFolder}\\build\\main.exe' -Wall"
+                "clang++ -stdlib=libc++ `",
+                "-std=c++17 `",
+                "-O0 `", // 编译器优化选项
+                "-finput-charset=UTF-8 `",
+                "-fexec-charset=UTF-8 `",
+                "-I \"${workspaceFolder}/include\" `",
+                "-L \"${workspaceFolder}/lib\" `",
+                "$files `",
+                "-g `", // 包含调试信息
+                "-o \"${workspaceFolder}/build/main.exe\" `",
+                "-Wall"
             ],
             "group": "build",
             "options": {
