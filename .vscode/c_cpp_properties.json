@@ -1,14 +1,14 @@
 {
     "configurations": [
         {
-            "name": "win32-gcc",
+            "name": "win32-clang64",
             "includePath": [
                 "${workspaceFolder}/include"
             ],
-            "compilerPath": "D:\\Apps\\MSYS2\\ucrt64\\bin\\g++.exe",
+            "compilerPath": "D:\\Apps\\MSYS2\\clang64\\bin\\clang++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-gcc-x64"
+            "intelliSenseMode": "windows-clang-x64"
         }
     ],
     "version": 4

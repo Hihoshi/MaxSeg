@@ -110,6 +110,7 @@
 #include <random>
 #include <stdexcept>
 #include <algorithm>
+#include <unordered_set>    
 #include "MultiHashTable.h"
 
 using namespace std;
@@ -119,26 +120,42 @@ using namespace std::chrono;
 vector<string> generate_keys(size_t count, size_t key_len) {
     vector<string> keys;
     keys.reserve(count);
-    // 全体字符集合
     static const char char_pool[] = 
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
     static const size_t pool_size = sizeof(char_pool) - 1; // 排除结尾的'\0'
+    
+    if (key_len == 0 || count == 0) {
+        return keys;
+    }
     random_device rd;
     mt19937 rng(rd());
     uniform_int_distribution<size_t> dist(0, pool_size - 1);
-    // 预分配内存块（避免多次独立内存申请）
     unique_ptr<char[]> shared_buffer(new char[count * key_len]);
+    unordered_set<string> seen;
+    seen.reserve(count); // 预分配空间以减少哈希表重建
+    const size_t max_attempts = count * 2;
     for (size_t i = 0; i < count; ++i) {
         char* buffer = shared_buffer.get() + i * key_len;
-        for (size_t j = 0; j < key_len; ++j) {
-            buffer[j] = char_pool[dist(rng)];
-        }
-        keys.emplace_back(buffer, key_len); // 触发一次内存拷贝
+        string s;
+        size_t attempts = 0;
+        do {
+            if (++attempts > max_attempts) {
+                throw runtime_error("Exceeded maximum attempts to generate unique key.");
+            }
+            // 生成随机字符串
+            for (size_t j = 0; j < key_len; ++j) {
+                buffer[j] = char_pool[dist(rng)];
+            }
+            s.assign(buffer, key_len);
+        } while (seen.count(s)); // 检查是否已存在
+        seen.insert(s);
+        keys.emplace_back(s);
     }
     return keys;
 }
+
 
 void rigorous_performance_test(size_t op_count, size_t key_len, size_t layers, size_t initial_size) {
     // 预生成所有测试数据
@@ -166,7 +183,8 @@ void rigorous_performance_test(size_t op_count, size_t key_len, size_t layers, s
         }
         
         auto duration = duration_cast<microseconds>(
-            high_resolution_clock::now() - start);
+            high_resolution_clock::now() - start
+        );
         cout
             << "Insert " << op_count << " elements: "
             << duration.count() << " us (" 
@@ -196,7 +214,8 @@ void rigorous_performance_test(size_t op_count, size_t key_len, size_t layers, s
         }
         
         auto duration = duration_cast<microseconds>(
-            high_resolution_clock::now() - start);
+            high_resolution_clock::now() - start
+        );
         cout
             << "Query " << query_keys.size() << " elements ("
             << found_count << " hits): "
@@ -217,7 +236,8 @@ void rigorous_performance_test(size_t op_count, size_t key_len, size_t layers, s
         }
         
         auto duration = duration_cast<microseconds>(
-            high_resolution_clock::now() - start);
+            high_resolution_clock::now() - start
+        );
         cout
             << "Update " << op_count << " elements: "
             << duration.count() << " us ("
@@ -242,7 +262,8 @@ void rigorous_performance_test(size_t op_count, size_t key_len, size_t layers, s
         }
         
         auto duration = duration_cast<microseconds>(
-            high_resolution_clock::now() - start);
+            high_resolution_clock::now() - start
+        );
         cout
             << "Delete " << delete_keys.size() << " elements: "
             << duration.count() << " us ("
@@ -275,16 +296,26 @@ void rigorous_performance_test(size_t op_count, size_t key_len, size_t layers, s
         }
     }
 
-    mht.info();
     cout << "Verification errors: " << error_count << endl;
+
+    mht.info();
+
+    // 测试清空操作耗时
+    auto start = high_resolution_clock::now();
+    mht.clear();
+    auto duration = duration_cast<microseconds>(
+        high_resolution_clock::now() - start
+    );
+    cout << "Clear operation took " << duration.count() << " us." << endl;
+
 }
 
 int main() {
     try {
-        const size_t test_size = 1e4;       // 测试规模
-        const size_t key_length = 32;       // 键长度
-        const size_t layers = 1;           // 层级数
-        const size_t initial_size = 1e2;    // 初始大小
+        const size_t test_size = 1e5;       // 测试规模
+        const size_t key_length = 16;       // 键长度
+        const size_t layers = 4;            // 层级数
+        const size_t initial_size = 1e5;    // 初始大小
 
         cout << "===== Starting Strict Performance Test =====" << endl;
         cout << fixed << setprecision(2);

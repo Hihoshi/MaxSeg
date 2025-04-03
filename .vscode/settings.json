@@ -87,5 +87,5 @@
     },
     "C_Cpp.intelliSenseCacheSize": 16384,
     "C_Cpp.errorSquiggles": "enabled",
-    "C_Cpp.default.compilerPath": "D:\\Apps\\MSYS2\\ucrt64\\bin\\clang++.exe"
+    "C_Cpp.default.compilerPath": "D:\\Apps\\MSYS2\\clang64\\bin\\clang++.exe"
 }

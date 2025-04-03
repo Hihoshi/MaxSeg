@@ -1,30 +1,14 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
         {
-            "name": "Debug Main.exe",
-            "type": "cppdbg",
+            "name": "Debug with LLDB",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/build/main.exe",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "miDebuggerPath": "D:\\Apps\\MSYS2\\ucrt64\\bin\\gdb.exe",
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": false
-                },
-                {
-                    "description": "Enable break on exception",
-                    "text": "break set -E C++",
-                    "ignoreFailures": false
-                }
-            ],
             "preLaunchTask": "C++ Build"
         }
     ]
