@@ -83,7 +83,9 @@
         "map": "cpp",
         "set": "cpp",
         "shared_mutex": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "unordered_set": "cpp",
+        "__tree": "cpp"
     },
     "C_Cpp.intelliSenseCacheSize": 16384,
     "C_Cpp.errorSquiggles": "enabled",

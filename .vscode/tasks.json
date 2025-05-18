@@ -12,15 +12,16 @@
                 "-Command",
                 // 获取所有.cpp文件路径
                 "$files = Get-ChildItem -Path '${workspaceFolder}\\src\\*.cpp' | % { $_.FullName };",
-                "clang++ -stdlib=libc++ `",
+                "clang++ `",
+                "$files `",
+                "-stdlib=libc++ `",  // 使用llvm的标准库
                 "-std=c++17 `",
-                "-O0 `", // 编译器优化选项
+                "-O1 `",  // 编译器优化选项
                 "-finput-charset=UTF-8 `",
                 "-fexec-charset=UTF-8 `",
-                "-I \"${workspaceFolder}/include\" `",
-                "-L \"${workspaceFolder}/lib\" `",
-                "$files `",
-                "-g `", // 包含调试信息
+                "-I \"${workspaceFolder}/include\" `",  // 包含头文件路径
+                "-L \"${workspaceFolder}/lib\" `",  // 包含库文件路径
+                "-g `",  // 包含调试信息
                 "-o \"${workspaceFolder}/build/main.exe\" `",
                 "-Wall"
             ],
