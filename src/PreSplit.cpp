@@ -63,83 +63,60 @@ struct MatchInfo
 
 constexpr int MAX_CONSECUTIVE_MISSES = 4; // 最大允许连续未命中次数
 
+// 更新后的find_max_match函数
 MatchInfo find_max_match(
-    const MultiHashTable<::std::string, ::std::string> &table,
-    const ::std::wstring &sentence,
+    const MultiHashTable<::std::string, ::std::string>& table,
+    const ::std::wstring& sentence,
     size_t start_pos
-)
-{
+) {
     MatchInfo result;
     int consecutive_misses = 0;
     size_t max_length = 0;
-
-    for (size_t length = 1; start_pos + length <= sentence.size(); ++length)
-    {
-        const auto current_sub = sentence.substr(start_pos, length);
-        const auto utf8_sub = unicode_to_utf8(current_sub);
-        const auto is_match = table.get(utf8_sub).has_value();
-
-        if (!is_match)
-        {
-            if (++consecutive_misses >= MAX_CONSECUTIVE_MISSES)
+    const size_t max_pos = sentence.size();
+    for (size_t end_pos = start_pos + 1; end_pos <= max_pos; ++end_pos) {
+        const size_t length = end_pos - start_pos;
+        const ::std::wstring current_substr = sentence.substr(start_pos, length);
+        const ::std::string utf8_str = unicode_to_utf8(current_substr);
+        if (table.get(utf8_str)) {
+            ++result.match_count;
+            if (result.first_match_end_pos == -1) {
+                result.first_match_end_pos = static_cast<int>(end_pos - 1);
+            }
+            if (length > max_length) {
+                max_length = length;
+                result.longest_match = current_substr;
+                result.longest_end_pos = static_cast<int>(end_pos - 1);
+            }
+            consecutive_misses = 0;
+        } else {
+            if (++consecutive_misses >= MAX_CONSECUTIVE_MISSES) {
                 break;
-            else
-                continue;
-        }
-
-        // 更新匹配信息
-        consecutive_misses = 0;
-        ++result.match_count;
-
-        // 更新首个匹配位置
-        if (result.match_count == 1)
-        {
-            result.first_match_end_pos = start_pos + length - 1;
-        }
-
-        // 更新最长匹配信息
-        if (length > max_length)
-        {
-            max_length = length;
-            result.longest_match = current_sub;
-            result.longest_end_pos = start_pos + length - 1;
+            }
         }
     }
     return result;
 }
-
-// 最大匹配分词，把每一个匹配到的词都放入结果中
-// 例如 “提高人民生活水平”
-// 把所有可能的匹配词（能在table中查到的，都分离出来）
-// 得到 “提高 高人 人民 民生 生活 水平”
+// 完整的分词函数
 ::std::vector<::std::string> MaxiumSplit(
-    const MultiHashTable<::std::string, ::std::string> &table,
-    const ::std::string &sentence
-)
-{
-    const auto wide_sentence = utf8_to_unicode(sentence);
-    ::std::vector<std::string> candidates;
-    int last_end_pos = -1;
-
-    for (size_t i = 0; i < wide_sentence.size();)
-    {
-        const auto match_info = find_max_match(table, wide_sentence, i);
-
-        // 添加有效匹配
-        if (!match_info.longest_match.empty() && match_info.longest_end_pos > last_end_pos)
-        {
-            candidates.emplace_back(unicode_to_utf8(match_info.longest_match));
-            last_end_pos = match_info.longest_end_pos;
+    const MultiHashTable<::std::string, ::std::string>& table,
+    const ::std::string& sentence
+) {
+    const ::std::wstring w_sentence = utf8_to_unicode(sentence);
+    ::std::vector<::std::string> result;
+    size_t start_pos = 0;
+    while (start_pos < w_sentence.size()) {
+        MatchInfo match = find_max_match(table, w_sentence, start_pos);
+        
+        if (match.longest_end_pos != -1) {
+            const size_t length = match.longest_end_pos - start_pos + 1;
+            result.push_back(unicode_to_utf8(
+                w_sentence.substr(start_pos, length)));
+            start_pos = match.longest_end_pos + 1;
+        } else {
+            result.push_back(unicode_to_utf8(
+                w_sentence.substr(start_pos, 1)));
+            ++start_pos;
         }
-
-        // 确定下一个起始位置
-        if (match_info.match_count >= 2)
-            i = match_info.first_match_end_pos + 1; // 跳过已匹配部分
-        else
-            ++i; // 常规步进
     }
-
-    if (candidates.empty())
-        candidates.push_back(sentence);
-    return candidates;
+    return result;
 }

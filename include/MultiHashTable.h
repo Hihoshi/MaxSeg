@@ -115,7 +115,7 @@ public:
     // 擦除指定位置的键值对，如果该位置不存在则不进行任何操作
     void erase(const Key &key, ::std::optional<size_t> pos = std::nullopt) {
         const size_t current_pos = pos.value_or(hash(key));
-        if (pos >= table_size_)
+        if (current_pos >= table_size_)
             throw ::std::invalid_argument("Index out of range");
         buckets_[current_pos].reset();
     }
@@ -158,19 +158,42 @@ private:
     }
 
 public:
-    MultiHashTable(unsigned int layers = 10, size_t initial_size = 1e5) {
-        if (initial_size < 2)
+    // MultiHashTable(size_t layers = 10, size_t initial_size = 1e5) {
+    //     if (initial_size < 2)
+    //         throw ::std::invalid_argument("Initial size too small");
+
+    //     tables_.reserve(layers);
+    //     size_t upper_bound = initial_size;
+    //     for (unsigned int i = 0; i < layers; ++i) {
+    //         while (upper_bound >= 2 && !is_prime(upper_bound))
+    //             --upper_bound;
+    //         if (upper_bound < 2)
+    //             throw ::std::invalid_argument("Size too small for finding proper prime");
+    //         tables_.emplace_back(upper_bound);
+    //         --upper_bound;
+    //     }
+    // }
+
+
+    MultiHashTable(size_t capacity, float alpha = 0.5f, size_t layers = 4) {
+        if (capacity < 2)
             throw ::std::invalid_argument("Initial size too small");
+        if (layers < 1)
+            throw ::std::invalid_argument("Layers too small");
+        if (alpha <= 0 || alpha >= 1)
+            throw ::std::invalid_argument("Load factor Alpha out of range");
 
         tables_.reserve(layers);
-        size_t upper_bound = initial_size;
-        for (unsigned int i = 0; i < layers; ++i) {
-            while (upper_bound >= 2 && !is_prime(upper_bound))
-                --upper_bound;
-            if (upper_bound < 2)
-                throw ::std::invalid_argument("Size too small for finding proper prime");
-            tables_.emplace_back(upper_bound);
-            --upper_bound;
+        size_t layer_size = static_cast<size_t>(capacity * (1 - alpha) / alpha);
+        tables_.emplace_back(layer_size);
+        for (size_t i = 0; i < layers - 1; ++i) {
+            layer_size = static_cast<size_t>(layer_size * pow(alpha, i + 1));
+            while (!is_prime(layer_size)) {
+                --layer_size;
+                if (layer_size < 2 && i == layers - 1)
+                    throw ::std::invalid_argument("Cannot find a prime number for this layer size, try a larger capacity");
+            }
+            tables_.emplace_back(layer_size);
         }
     }
 

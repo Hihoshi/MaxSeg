@@ -26,10 +26,6 @@ MatchInfo find_max_match(
 );
 
 
-// 最大匹配分词，把每一个匹配到的词都放入结果中
-// 例如 “提高人民生活水平”
-// 把所有可能的匹配词（能在table中查到的，都分离出来）
-// 得到 “提高 高人 人民 民生 生活 水平”
 ::std::vector<std::string> MaxiumSplit(
     const MultiHashTable<::std::string, ::std::string> &table,
     const ::std::string &sentence
