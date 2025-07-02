@@ -63,7 +63,7 @@ struct MatchInfo
 
 constexpr int MAX_CONSECUTIVE_MISSES = 4; // 最大允许连续未命中次数
 
-// 更新后的find_max_match函数
+
 MatchInfo find_max_match(
     const MultiHashTable<::std::string, ::std::string>& table,
     const ::std::wstring& sentence,
@@ -96,6 +96,7 @@ MatchInfo find_max_match(
     }
     return result;
 }
+
 // 完整的分词函数
 ::std::vector<::std::string> MaxiumSplit(
     const MultiHashTable<::std::string, ::std::string>& table,
